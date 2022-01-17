@@ -130,4 +130,4 @@ function checkForWin() {
 }
 
 makeBoard();
-makeHtmlBoard();
+makeHtmlBoard(); 
