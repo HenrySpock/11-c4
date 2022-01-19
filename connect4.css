@@ -1,4 +1,24 @@
+body {
+  background-color: rgb(219, 186, 125)
+}
+
+td {
+  background-color:rgb(166, 179, 235)
+}
+
+/* Player and turn info */
+#info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
 /* game board table */
+#game {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
 
 #board td {
   width: 50px;
@@ -13,12 +33,21 @@
   margin: 5px;
   width: 80%;
   height: 80%;
+  border-radius: 50%;
 }
 
 /* TODO: make pieces red/blue,  depending on player 1/2 piece */
+.playerOneColor {
+  background-color: red;
+  z-index: 1;
+}
+
+.playerTwoColor {
+  background-color: blue;
+  z-index: 1;
+}
 
 /* column-top is table row of clickable areas for each column */
-
 #column-top td {
   border: dashed 1px lightgray;
 }
@@ -26,3 +55,7 @@
 #column-top td:hover {
   background-color: gold;
 } 
+
+.colFull {
+  pointer-events: none;
+}
