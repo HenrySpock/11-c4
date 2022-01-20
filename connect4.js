@@ -10,17 +10,24 @@ let WIDTH = 7; //game board width
 let HEIGHT = 6; //game board height
 let currPlayer = 1; // active player: 1 or 2
 let turn = 1; //setting the starting turn
-let board = [ [0, 0, 0, 0, 0, 0, 0], 
-              [0, 0, 0, 0, 0, 0, 0], 
-              [0, 0, 0, 0, 0, 0, 0], 
-              [0, 0, 0, 0, 0, 0, 0], 
-              [0, 0, 0, 0, 0, 0, 0], 
-              [0, 0, 0, 0, 0, 0, 0] ]; //initial board matrix
-              // array of rows, each row is array of cells  (board[y][x]): 
-              //0: empty; 1: blue; 2: red
-/** makeBoard: create in-JS board structure:
- *    board = array of rows, each row is array of cells  (board[y][x])
- */
+let redWins = 0;
+let blueWins = 0;
+
+let board = [];
+
+function createBoard() {   
+  for (let i = 0; i < HEIGHT; i++){
+    let row = [];
+    board.push(row); //board now has 6 empty arrays
+    for (let j = 0; j < WIDTH; j++){
+      row.push(0); //the 6 arrays now have 7 indices of 0;
+      //interestingly, when I did this vice versa (pushing 6 rows of 0s), the pushed arrays 
+      //all pointed to the same reference
+    }
+  }  
+}
+
+createBoard();
 
 //FUNCTIONS
 function makeBoard() {
@@ -68,50 +75,22 @@ function makeHtmlBoard() {
   setTimeout(() => {alert(`Player ${currPlayer}, do your thing!`)}, 250); //A basic notification for the players that the game has started.
   document.getElementById("player").innerHTML = (`Player ${currPlayer}`); //Some simple game info for the players.
   document.getElementById("turn").innerHTML = (`Turn ${turn}`); //Some simple game info for the players.
+  document.getElementById("red-wins").innerHTML = (`Red Wins: ${redWins}`); //Some simple game info for the players.
+  document.getElementById("blue-wins").innerHTML = (`Blue Wins: ${blueWins}`); //Some simple game info for the players.
 }
 
 // findSpotForCol: given column x, return top empty y (null if filled) 
 
 function findSpotForCol(x) {
   // TODO: write the real version of this, rather than always returning 0
-     if      (board[5][x] === 0){
-        return 5;}
-    else if (board[4][x] === 0){
-        return 4;}
-    else if (board[3][x] === 0){
-        return 3;}
-    else if (board[2][x] === 0){
-        return 2;}
-    else if (board[1][x] === 0){
-        return 1;}
-    else if (board[0][x] === 0){
-        return 0;}
-      return null;
-
-  //This is my attempt at making the above into a switch statement;
-  // I am unsure how to get the variables defined, or if I am thinking 
-  // about this incorrectly.
-
-  // switch (board[y][x]) {}
-  //   case (board[5][x] === 0):
-  //   return 5;
-  //   break;
-  //   case (board[4][x] === 0):
-  //   return 4;
-  //   break;
-  //   case (board[3][x] === 0):
-  //   return 3;
-  //   break;
-  //   case (board[2][x] === 0):
-  //   return 2;
-  //   break;
-  //   case (board[1][x] === 0):
-  //   return 1;
-  //   break;
-  //   case (board[0][x] === 0):
-  //   return 0;
-  //   break;    
-  // return null;
+       
+        for (let y = HEIGHT - 1; y >= 0; y--) {
+          if (!board[y][x]) {
+            return y;
+          }
+        }
+        return null;
+ 
 }
 
 /** placeInTable: update DOM to place piece into HTML table of board */
@@ -141,7 +120,8 @@ function endGame(msg) {
 /** handleClick: handle click of column top to play piece */
 function handleClick(evt) {
   // get x from ID of clicked cell
-  let x = +evt.target.id;
+  //let x = +evt.target.id; //the + here turns the "id" into a number, but my code already defines the id as a number 
+  let x = evt.target.id;
   // get next spot in column (if none, ignore click)
   let y = findSpotForCol(x);
   board[y][x] = currPlayer;
@@ -150,18 +130,28 @@ function handleClick(evt) {
   placeInTable(y, x);
   // check for win
   if (checkForWin()) {
+    // if (currPlayer === 1) { 
+    //   currPlayer = 2 
+    // } else {
+    //   currPlayer = 1
+    // } 
+    //This if statement has to do with how the currPlayer is set and how the win msg alerts before 
+    //the final piece is played; I circumvent that by switch currPlayer and alerting an interval of 50ml 
+    //after the final piece shows up on the board.
+    if (currPlayer === 1) {++redWins} else {++blueWins}
+    document.getElementById("red-wins").innerHTML = (`Red Wins: ${redWins}`); 
+    document.getElementById("blue-wins").innerHTML = (`Blue Wins: ${blueWins}`);
     if (currPlayer === 1) { 
       currPlayer = 2 
     } else {
       currPlayer = 1
-    } //This if statement has to do with how the currPlayer is set and how the win msg alerts before 
-    //the final piece is played; I circumvent that by switch currPlayer and alerting an interval of 50ml 
-    //after the final piece shows up on the board.
-
+    } 
     setTimeout(() => {return endGame(`Player ${currPlayer} won!`)}, 50);
+
     setTimeout(() => {playAgain()}, 200);
 
     function playAgain() {
+      
         let onceMore = prompt("Play again? (y/n)"); 
         function clearElement(className){
             const el = document.getElementsByClassName(className);
@@ -171,8 +161,19 @@ function handleClick(evt) {
         }
     
         if (onceMore == "y") {
+          let tourney = prompt("Clear Wins? (y/n)");
+          if (tourney == "y"){redWins = 0; blueWins = 0}
+          document.getElementById("red-wins").innerHTML = (`Red Wins: ${redWins}`); 
+          document.getElementById("blue-wins").innerHTML = (`Blue Wins: ${blueWins}`);
+          currPlayer = 1;
+          console.log(currPlayer);
+          turn = 1;
+          console.log(turn);
+          document.getElementById("player").innerHTML = (`Player ${currPlayer}`);
+          document.getElementById("turn").innerHTML = (`Turn ${turn}`); 
           makeBoard(); 
           clearElement("piece");
+          
         }    
         else {
            alert("Shucks.")
